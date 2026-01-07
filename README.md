@@ -9,6 +9,8 @@ Each message from the bot will have a ❌ react on it, which you can click to de
 Handles up to nine colours per message:
 ![demonstration of many colours in one message](.github/readme_assets/many.png)
 
+Alpha (#RRGGBBAA) is also supported!
+
 ## How to use
 
 1. [Click here to download the Linux executable](../../releases/latest)
