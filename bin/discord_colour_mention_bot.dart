@@ -10,6 +10,8 @@ const int textHeight = 48;
 
 const int imageSize = 512;
 
+const String deleteEmoji = "❌";
+
 final RegExp hexColourRegex = RegExp("#[0-9a-fA-F]{6,8}");
 
 Future<void> main(List<String> arguments) async {
@@ -22,7 +24,7 @@ Future<void> main(List<String> arguments) async {
   final NyxxGateway client = await Nyxx.connectGateway(
     token,
     GatewayIntents.allUnprivileged | GatewayIntents.messageContent,
-    options: GatewayClientOptions(plugins: [logging, cliIntegration]),
+    options: GatewayClientOptions(plugins: <NyxxPlugin<Nyxx>>[logging, cliIntegration]),
   );
 
   final User botUser = await client.users.fetchCurrentUser();
@@ -38,7 +40,7 @@ Future<void> main(List<String> arguments) async {
     //don't reply if there are no colours to render
     if (matches.isEmpty) return;
 
-    final List<AttachmentBuilder> attachments = [];
+    final List<AttachmentBuilder> attachments = <AttachmentBuilder>[];
     for (final RegExpMatch match in matches.take(9)) {
       final String? colour = match.group(0);
       if (colour == null) continue;
@@ -54,7 +56,7 @@ Future<void> main(List<String> arguments) async {
     //don't reply if there ended up being no attachments generates
     if (attachments.isEmpty) return;
 
-    await event.message.channel.sendMessage(
+    final Message sentMessage = await event.message.channel.sendMessage(
       MessageBuilder(
         content:
             "This is what ${attachments.length > 1 ? "those colours" : "that colour"} look${attachments.length > 1 ? "" : "s"} like:",
@@ -66,6 +68,29 @@ Future<void> main(List<String> arguments) async {
         attachments: attachments,
       ),
     );
+
+    await sentMessage.react(ReactionBuilder(name: deleteEmoji, id: null));
+  });
+
+  client.onMessageReactionAdd.listen((MessageReactionAddEvent event) async {
+    //only delete on delete emoji
+    if (event.emoji.name != deleteEmoji) return;
+
+    //only delete own messages
+    final Message colourBotMessage = await event.message.get();
+    if (colourBotMessage.author.id != botUser.id) return;
+
+    //not a reply
+    final MessageReference? replyTo = colourBotMessage.reference;
+    if (replyTo == null) return;
+    final PartialMessage? replyMessage = replyTo.message;
+    if (replyMessage == null) return;
+
+    //only allow the original author delete the bot message
+    final Message originalMessage = await replyMessage.get();
+    if (event.userId != originalMessage.author.id) return;
+
+    await event.message.delete();
   });
 }
 
