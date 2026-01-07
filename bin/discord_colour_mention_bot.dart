@@ -40,10 +40,14 @@ Future<void> main(List<String> arguments) async {
     //don't reply if there are no colours to render
     if (matches.isEmpty) return;
 
+    final Set<String> colours = matches
+        .take(9)
+        .map((RegExpMatch match) => match.group(0))
+        .whereType<String>()
+        .toSet();
+
     final List<AttachmentBuilder> attachments = <AttachmentBuilder>[];
-    for (final RegExpMatch match in matches.take(9)) {
-      final String? colour = match.group(0);
-      if (colour == null) continue;
+    for (final String colour in colours) {
       final Uint8List? imageData = await generateImageForColour(colour);
       if (imageData == null) continue;
       final AttachmentBuilder attachment = AttachmentBuilder(
