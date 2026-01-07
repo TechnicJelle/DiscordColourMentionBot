@@ -41,13 +41,12 @@ Future<void> main(List<String> arguments) async {
     if (matches.isEmpty) return;
 
     final Set<String> colours = matches
-        .take(9)
         .map((RegExpMatch match) => match.group(0))
         .whereType<String>()
         .toSet();
 
     final List<AttachmentBuilder> attachments = <AttachmentBuilder>[];
-    for (final String colour in colours) {
+    for (final String colour in colours.take(9)) {
       final Uint8List? imageData = await generateImageForColour(colour);
       if (imageData == null) continue;
       final AttachmentBuilder attachment = AttachmentBuilder(
