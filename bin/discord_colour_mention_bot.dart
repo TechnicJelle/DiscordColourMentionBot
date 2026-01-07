@@ -59,7 +59,7 @@ Future<void> main(List<String> arguments) async {
     final Message sentMessage = await event.message.channel.sendMessage(
       MessageBuilder(
         content:
-            "This is what ${attachments.length > 1 ? "those colours" : "that colour"} look${attachments.length > 1 ? "" : "s"} like:",
+            "This is what${matches.length > 9 ? " (the first nine of)" : ""} ${attachments.length > 1 ? "those colours" : "that colour"} look${attachments.length > 1 ? "" : "s"} like:",
         referencedMessage: MessageReferenceBuilder.reply(messageId: event.message.id),
         flags: MessageFlags.suppressNotifications,
         //no message sound (if you're in the channel)
