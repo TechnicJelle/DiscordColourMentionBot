@@ -1,0 +1,14 @@
+name: discord_colour_mention_bot
+description: A simple Discord bot that replies to messages that contain a colour code with an image in that colour
+version: 1.0.0
+repository: https://github.com/TechnicJelle/DiscordColourMentionBot
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  image: ^4.7.2
+  nyxx: ^6.7.0
+
+dev_dependencies:
+  very_good_analysis: ^10.0.0
