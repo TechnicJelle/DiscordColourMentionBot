@@ -6,6 +6,9 @@ A simple Discord bot that replies to messages that contain a colour code with an
 
 Each message from the bot will have a ❌ react on it, which you can click to delete it.
 
+Handles up to nine colours per message:
+![demonstration of many colours in one message](.github/readme_assets/many.png)
+
 ## How to use
 
 1. [Click here to download the Linux executable](../../releases/latest)
