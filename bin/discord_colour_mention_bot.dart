@@ -105,13 +105,13 @@ Future<Uint8List?> generateImageForColour(String hexString) async {
       hexString,
       font: font,
       color: textColour,
-      y: imageSize ~/ 2 - textHeight ~/ 2,
+      y: imageSize ~/ 2 - textHeight,
     )
     ..drawString(
       rgbString,
       font: font,
       color: textColour,
-      y: imageSize ~/ 2 + textHeight ~/ 2,
+      y: imageSize ~/ 2,
     )
     ..encodePng();
 
