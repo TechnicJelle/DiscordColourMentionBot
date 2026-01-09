@@ -61,6 +61,9 @@ Future<void> main(List<String> arguments) async {
     //check if message author reacted
     if (event.userId != event.messageAuthorId) return;
 
+    //ensure that the reacted emoji is ours
+    if (!emojiCache.isOurs(event.emoji)) return;
+
     unawaited(event.message.deleteReaction(ReactionBuilder.fromEmoji(event.emoji)));
   });
 }

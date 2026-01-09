@@ -63,6 +63,10 @@ class EmojiCache {
 
     return _emojiDict[key] = newEmoji;
   }
+
+  bool isOurs(Emoji emoji) {
+    return nyxxCache.containsValue(emoji);
+  }
 }
 
 const int imageSize =
