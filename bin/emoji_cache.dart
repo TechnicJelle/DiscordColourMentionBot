@@ -1,3 +1,4 @@
+import "dart:collection";
 import "dart:typed_data";
 
 import "package:image/image.dart" as img;
@@ -10,9 +11,7 @@ const int cacheSizeLimit = 1950;
 class EmojiCache {
   final NyxxGateway _client;
 
-  Cache<Emoji> get nyxxCache => _client.application.emojis.cache;
-
-  final Map<String, ApplicationEmoji> _emojiDict = <String, ApplicationEmoji>{};
+  final Map<String, ApplicationEmoji> _emojiDict = HashMap<String, ApplicationEmoji>();
 
   EmojiCache(NyxxGateway client) : _client = client;
 
@@ -26,7 +25,8 @@ class EmojiCache {
   String hexColourToKey(String hexColour) {
     final String key = hexColour.replaceFirst("#", "").toUpperCase();
 
-    //if the provided alpha is 255, we omit it from the key
+    //if the provided alpha is 255, we omit it from the key, to encourage cache hits
+    //if the same colour without alpha channel was already in the cache
     if (key.length == 8 && key.endsWith("FF")) {
       return key.substring(0, key.length - 2);
     }
@@ -47,12 +47,17 @@ class EmojiCache {
     final Uint8List? imageData = await generateImageForColour(hexColour);
     if (imageData == null) return null;
 
-    if (nyxxCache.length >= cacheSizeLimit) {
+    //a while loop in case the length ended up way larger than the limit
+    //e.g. if the limit was lowered recently
+    while (_emojiDict.length >= cacheSizeLimit) {
       //delete an old emoji to make space for this one
       //TODO: can we make it delete the least-often used emoji..?
-      final List<Snowflake> list = nyxxCache.keys.toList(growable: false)
-        ..sort((Snowflake a, Snowflake b) => a.value.compareTo(b.value));
-      await _client.application.emojis.delete(list.first);
+
+      //technically, this hashmap does not guarantee order,
+      //but often enough the map is sorted from old at the front to new at the end,
+      //that getting the first one generally results in an old emoji.
+      //and even if it overwrites a new-ish emoji, the worst thing that happens is that it's a little bit slower. oh well!
+      await deleteEmoji(_emojiDict.entries.first);
     }
 
     final ApplicationEmoji newEmoji = await _client.application.emojis.create(
@@ -66,7 +71,13 @@ class EmojiCache {
   }
 
   bool isOurs(Emoji emoji) {
-    return nyxxCache.containsValue(emoji);
+    return _emojiDict.containsValue(emoji);
+  }
+
+  /// Deletes an emoji both from the server and the [_emojiDict]
+  Future<void> deleteEmoji(MapEntry<String, ApplicationEmoji> toDelete) async {
+    await _client.application.emojis.delete(toDelete.value.id);
+    _emojiDict.remove(toDelete.key);
   }
 }
 
