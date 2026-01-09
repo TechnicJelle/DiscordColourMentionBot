@@ -69,8 +69,8 @@ class EmojiCache {
   }
 }
 
-const int imageSize =
-    128; //that's the size discord wants, but 1×1 technically works too...
+//that's the size discord wants, but 1×1 technically works too...
+const int imageSize = 128;
 
 Future<Uint8List?> generateImageForColour(String hexString) async {
   final int? ox = int.tryParse(hexString.replaceFirst("#", "0x"));
