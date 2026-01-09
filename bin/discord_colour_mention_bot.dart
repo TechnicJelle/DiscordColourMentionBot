@@ -27,13 +27,15 @@ Future<void> main(List<String> arguments) async {
     ),
   );
 
-  //TODO: Not this
-  final ReplyMechanism replyMechanism = Random().nextBool()
-      ? AttachmentReplyMechanism(client: client)
-      : EmojiReplyMechanism(client: client);
-  await replyMechanism.init();
-
   final User botUser = await client.users.fetchCurrentUser();
+
+  final List<ReplyMechanism> replyMechanisms = <ReplyMechanism>[
+    AttachmentReplyMechanism(client: client),
+    EmojiReplyMechanism(client: client),
+  ];
+  for (final ReplyMechanism replyMechanism in replyMechanisms) {
+    await replyMechanism.init(botUser: botUser);
+  }
 
   client.onMessageCreate.listen((MessageCreateEvent event) async {
     //don't reply to own messages
@@ -51,9 +53,16 @@ Future<void> main(List<String> arguments) async {
         .whereType<String>()
         .toSet();
 
-    await replyMechanism.doTheReply(event, colours);
+    //TODO: Not this
+    await replyMechanisms[Random().nextInt(replyMechanisms.length)].doTheReply(event, colours);
   });
 
   //click the reaction to remove the reply
-  client.onMessageReactionAdd.listen(replyMechanism.handleReactionAdd);
+  client.onMessageReactionAdd.listen(
+    (MessageReactionAddEvent event) {
+      for (final ReplyMechanism replyMechanism in replyMechanisms) {
+        unawaited(replyMechanism.handleReactionAdd(event));
+      }
+    },
+  );
 }

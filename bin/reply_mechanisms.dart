@@ -5,7 +5,11 @@ import "package:nyxx/nyxx.dart";
 import "reply_caches.dart";
 
 abstract class ReplyMechanism {
-  Future<void> init();
+  late final User _botUser;
+
+  Future<void> init({required User botUser}) async {
+    _botUser = botUser;
+  }
 
   Future<void> doTheReply(MessageCreateEvent event, Set<String> colours);
 
@@ -19,7 +23,8 @@ class EmojiReplyMechanism extends ReplyMechanism {
     : _emojiCache = EmojiReplyCache(client: client);
 
   @override
-  Future<void> init() async {
+  Future<void> init({required User botUser}) async {
+    await super.init(botUser: botUser);
     await _emojiCache.init();
   }
 
@@ -38,6 +43,10 @@ class EmojiReplyMechanism extends ReplyMechanism {
     //check if message author reacted
     if (event.userId != event.messageAuthorId) return;
 
+    //ensure we don't handle the bot's own reactions
+    //e.g. the AttachmentReplyMechanism's deleteEmoji
+    if (event.userId == _botUser.id) return;
+
     //ensure that the reacted emoji is ours
     if (!_emojiCache.isOurs(event.emoji)) return;
 
@@ -48,18 +57,15 @@ class EmojiReplyMechanism extends ReplyMechanism {
 class AttachmentReplyMechanism extends ReplyMechanism {
   static const String deleteEmoji = "❌";
 
-  late final User _botUser;
-  final NyxxGateway _client;
   final AttachmentReplyCache _attachmentCache;
 
   AttachmentReplyMechanism({required NyxxGateway client})
-    : _client = client,
-      _attachmentCache = AttachmentReplyCache(client: client);
+    : _attachmentCache = AttachmentReplyCache(client: client);
 
   @override
-  Future<void> init() async {
+  Future<void> init({required User botUser}) async {
+    await super.init(botUser: botUser);
     await _attachmentCache.init();
-    _botUser = await _client.users.fetchCurrentUser();
   }
 
   @override
