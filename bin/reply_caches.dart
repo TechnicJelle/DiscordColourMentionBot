@@ -96,6 +96,8 @@ class EmojiReplyCache extends ReplyCache<ApplicationEmoji> {
   }
 
   bool isOurs(Emoji emoji) {
+    //this will not match any emoji has been removed from the cache already, which is fine.
+    //only really old emoji get removed from the cache, so we'll justr say that that's a feature against changing history
     return _cacheDict.containsValue(emoji);
   }
 
