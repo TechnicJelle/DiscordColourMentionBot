@@ -1,9 +1,10 @@
 import "dart:async";
 import "dart:io";
+import "dart:math";
 
 import "package:nyxx/nyxx.dart";
 
-import "emoji_cache.dart";
+import "reply_mechanisms.dart";
 
 final RegExp hexColourRegex = RegExp("#[0-9a-fA-F]{6,8}");
 
@@ -23,12 +24,14 @@ Future<void> main(List<String> arguments) async {
         cliIntegration,
         ignoreExceptions,
       ],
-      emojiCacheConfig: const .new(maxSize: cacheSizeLimit),
     ),
   );
 
-  final EmojiCache emojiCache = EmojiCache(client);
-  await emojiCache.init();
+  //TODO: Not this
+  final ReplyMechanism replyMechanism = Random().nextBool()
+      ? AttachmentReplyMechanism(client: client)
+      : EmojiReplyMechanism(client: client);
+  await replyMechanism.init();
 
   final User botUser = await client.users.fetchCurrentUser();
 
@@ -40,7 +43,7 @@ Future<void> main(List<String> arguments) async {
         .allMatches(event.message.content)
         .toList(growable: false);
 
-    //don't reply if there are no colours to render
+    //don't reply if there are no colours to show
     if (matches.isEmpty) return;
 
     final Set<String> colours = matches
@@ -48,22 +51,9 @@ Future<void> main(List<String> arguments) async {
         .whereType<String>()
         .toSet();
 
-    //20 is the maximum amount of reactions
-    for (final String colour in colours.take(20)) {
-      final Emoji? colourEmoji = await emojiCache.getEmojiForColour(colour);
-      if (colourEmoji == null) continue;
-      await event.message.react(ReactionBuilder.fromEmoji(colourEmoji));
-    }
+    await replyMechanism.doTheReply(event, colours);
   });
 
-  //click the reaction to remove it
-  client.onMessageReactionAdd.listen((MessageReactionAddEvent event) {
-    //check if message author reacted
-    if (event.userId != event.messageAuthorId) return;
-
-    //ensure that the reacted emoji is ours
-    if (!emojiCache.isOurs(event.emoji)) return;
-
-    unawaited(event.message.deleteReaction(ReactionBuilder.fromEmoji(event.emoji)));
-  });
+  //click the reaction to remove the reply
+  client.onMessageReactionAdd.listen(replyMechanism.handleReactionAdd);
 }
