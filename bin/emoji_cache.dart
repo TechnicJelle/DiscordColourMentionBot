@@ -10,6 +10,8 @@ const int cacheSizeLimit = 1950;
 class EmojiCache {
   final NyxxGateway _client;
 
+  Cache<Emoji> get nyxxCache => _client.application.emojis.cache;
+
   final Map<String, ApplicationEmoji> _emojiDict = <String, ApplicationEmoji>{};
 
   EmojiCache(NyxxGateway client) : _client = client;
@@ -44,11 +46,10 @@ class EmojiCache {
     final Uint8List? imageData = await generateImageForColour(hexColour);
     if (imageData == null) return null;
 
-    final Cache<Emoji> internalCache = _client.application.emojis.cache;
-    if (internalCache.length >= cacheSizeLimit) {
+    if (nyxxCache.length >= cacheSizeLimit) {
       //delete an old emoji to make space for this one
       //TODO: can we make it delete the least-often used emoji..?
-      final List<Snowflake> list = internalCache.keys.toList(growable: false)
+      final List<Snowflake> list = nyxxCache.keys.toList(growable: false)
         ..sort((Snowflake a, Snowflake b) => a.value.compareTo(b.value));
       await _client.application.emojis.delete(list.first);
     }
