@@ -66,8 +66,7 @@ class AttachmentImageGenerator extends ImageGenerator {
     final img.Color? colour = ImageGenerator._colorFromHexColour(hexString);
     if (colour == null) return null;
 
-    final double luminance =
-        (0.299 * colour.r + 0.587 * colour.g + 0.114 * colour.b) / 255;
+    final double luminance = (0.299 * colour.r + 0.587 * colour.g + 0.114 * colour.b) / 255;
     final img.Color textColour = luminance > 0.5
         ? img.ColorRgb8(0, 0, 0)
         : img.ColorRgb8(255, 255, 255);
