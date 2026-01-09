@@ -38,8 +38,9 @@ class EmojiCache {
     final String key = hexColourToKey(hexColour);
 
     //check if we have this colour emoji already
-    if (_emojiDict.containsKey(key)) {
-      return _emojiDict[key];
+    {
+      final ApplicationEmoji? potentialEmojiFromCache = _emojiDict[key];
+      if (potentialEmojiFromCache != null) return potentialEmojiFromCache;
     }
 
     //we didn't have this colour emoji yet, so we make it
