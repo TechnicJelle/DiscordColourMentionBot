@@ -1,9 +1,10 @@
 import "dart:async";
 import "dart:io";
-import "dart:math";
 
 import "package:nyxx/nyxx.dart";
+import "package:nyxx_commands/nyxx_commands.dart";
 
+import "preferences.dart";
 import "reply_mechanisms.dart";
 
 final RegExp hexColourRegex = RegExp("#[0-9a-fA-F]{6,8}");
@@ -15,6 +16,15 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
+  Preferences(); //init the singleton
+
+  final CommandsPlugin commands = CommandsPlugin(
+    prefix: mentionOr((_) => "!"),
+    options: const CommandsOptions(
+      defaultResponseLevel: .hint,
+    ),
+  )..addCommand(Preferences.instance.changeReplyMechanismCommand);
+
   final NyxxGateway client = await Nyxx.connectGateway(
     token,
     GatewayIntents.allUnprivileged | GatewayIntents.messageContent,
@@ -23,19 +33,13 @@ Future<void> main(List<String> arguments) async {
         logging,
         cliIntegration,
         ignoreExceptions,
+        commands,
       ],
     ),
   );
 
   final User botUser = await client.users.fetchCurrentUser();
-
-  final List<ReplyMechanism> replyMechanisms = <ReplyMechanism>[
-    AttachmentReplyMechanism(client: client),
-    EmojiReplyMechanism(client: client),
-  ];
-  for (final ReplyMechanism replyMechanism in replyMechanisms) {
-    await replyMechanism.init(botUser: botUser);
-  }
+  await ReplyMechanisms.init(client: client, botUser: botUser);
 
   client.onMessageCreate.listen((MessageCreateEvent event) async {
     //don't reply to own messages
@@ -53,14 +57,14 @@ Future<void> main(List<String> arguments) async {
         .whereType<String>()
         .toSet();
 
-    //TODO: Not this
-    await replyMechanisms[Random().nextInt(replyMechanisms.length)].doTheReply(event, colours);
+    final ReplyMechanism replyMechanism = ReplyMechanisms.getFor(event);
+    await replyMechanism.doTheReply(event, colours);
   });
 
   //click the reaction to remove the reply
   client.onMessageReactionAdd.listen(
     (MessageReactionAddEvent event) {
-      for (final ReplyMechanism replyMechanism in replyMechanisms) {
+      for (final ReplyMechanism replyMechanism in ReplyMechanisms.all()) {
         unawaited(replyMechanism.handleReactionAdd(event));
       }
     },

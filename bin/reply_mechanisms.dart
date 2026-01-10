@@ -2,12 +2,50 @@ import "dart:async";
 
 import "package:nyxx/nyxx.dart";
 
+import "preferences.dart";
 import "reply_caches.dart";
+
+ReplyMechanisms defaultReplyMechanism = .emoji;
+
+enum ReplyMechanisms {
+  emoji,
+  attachment
+  ;
+
+  static late final Map<ReplyMechanisms, ReplyMechanism> _replyMechanisms;
+
+  static Future<void> init({
+    required NyxxGateway client,
+    required User botUser,
+  }) async {
+    //register all reply mechanisms (defined below, as extending the ReplyMechanism abstract class)
+    _replyMechanisms = <ReplyMechanisms, ReplyMechanism>{
+      ReplyMechanisms.emoji: EmojiReplyMechanism(client: client),
+      ReplyMechanisms.attachment: AttachmentReplyMechanism(client: client),
+    };
+
+    //initialize all reply mechanisms (mainly used for filling in any caches)
+    for (final ReplyMechanism replyMechanism in _replyMechanisms.values) {
+      await replyMechanism._init(botUser: botUser);
+    }
+  }
+
+  static ReplyMechanism getFor(MessageCreateEvent event) =>
+      _replyMechanisms[Preferences.instance.getReplyMechanismFor(event)] ??
+      _replyMechanisms[defaultReplyMechanism] ??
+      all().first;
+
+  static Iterable<ReplyMechanism> all() => _replyMechanisms.values;
+
+  String toJson() => name;
+
+  static ReplyMechanisms fromJson(String json) => values.byName(json);
+}
 
 abstract class ReplyMechanism {
   late final User _botUser;
 
-  Future<void> init({required User botUser}) async {
+  Future<void> _init({required User botUser}) async {
     _botUser = botUser;
   }
 
@@ -23,8 +61,8 @@ class EmojiReplyMechanism extends ReplyMechanism {
     : _emojiCache = EmojiReplyCache(client: client);
 
   @override
-  Future<void> init({required User botUser}) async {
-    await super.init(botUser: botUser);
+  Future<void> _init({required User botUser}) async {
+    await super._init(botUser: botUser);
     await _emojiCache.init();
   }
 
@@ -63,8 +101,8 @@ class AttachmentReplyMechanism extends ReplyMechanism {
     : _attachmentCache = AttachmentReplyCache(client: client);
 
   @override
-  Future<void> init({required User botUser}) async {
-    await super.init(botUser: botUser);
+  Future<void> _init({required User botUser}) async {
+    await super._init(botUser: botUser);
     await _attachmentCache.init();
   }
 

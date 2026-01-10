@@ -9,6 +9,7 @@ environment:
 dependencies:
   image: ^4.7.2
   nyxx: ^6.7.0
+  nyxx_commands: ^6.0.5
 
 dev_dependencies:
   very_good_analysis: ^10.0.0
