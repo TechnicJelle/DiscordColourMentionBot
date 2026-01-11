@@ -10,7 +10,7 @@
 include: package:very_good_analysis/analysis_options.yaml
 
 formatter:
-  page_width: 89
+  page_width: 93
 
 analyzer:
   plugins:
