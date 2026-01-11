@@ -28,7 +28,7 @@ Colours with alpha transparency are also supported, in the #RRGGBBAA format!
     - The bot requires the **Privileged Gateway Intents** > **Message Content Intent** option to be _enabled_,
       so it can check all the messages if they contain a colour code to display
     - The bot also needs the **Manage Messages** permission, to be able to remove emoji reactions
-3. Start the bot with the following command, replacing the placeholder token with the token you got in step 2:
+3. Start the bot with the following command, but replace the placeholder token with the token you got in step 2:
    ```bash
    DISCORD_TOKEN=abcdefghijklmnopqrstuvwxyz1234567890 ./DiscordColourMentionBot
      ```
