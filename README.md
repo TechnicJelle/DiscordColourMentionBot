@@ -35,7 +35,7 @@ Colours with alpha transparency are also supported, in the #RRGGBBAA format!
 
 To stop the bot, press `Ctrl`+`C` in the terminal window.
 
-You can change the reply mechanism with the `/reply-mechanism` command:  
+Server admins can change the server's preferred reply mechanism with the `/reply-mechanism` command:  
 ![showcase of the reply mechamism being changed](.github/readme_assets/mechanism_change.png)  
 (Emoji reactions are the default)
 
