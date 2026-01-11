@@ -1,6 +1,6 @@
 # Discord Colour Mention Bot
 
-A small Discord bot that displays the colour of messages that contain a colour code.
+A small Discord bot that displays colour codes in messages.
 
 It can display the colour with two different mechanisms:
 
@@ -12,7 +12,7 @@ It can display the colour with two different mechanisms:
       ![demonstration of many emoji reactions](.github/readme_assets/demo_emoji_many.png)
 2. As a message reply with image attachments:  
    ![demonstration](.github/readme_assets/demo_attachment.png)  
-    - Each message from the bot will have a ❌ react on it, which (only) the person
+    - Each message from the bot will have a ❌ reaction on it, which (only) the person
       who sent the message with that colour code can click to delete the reply.
     - Handles up to nine colours per message:
       ![demonstration of many colours in one message](.github/readme_assets/demo_attachment_many.png)
