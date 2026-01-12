@@ -68,23 +68,26 @@ class Preferences {
   ChatCommand get changeReplyMechanismCommand => ChatCommand(
     "reply-mechanism",
     "Change how the bot should show colours",
-    (
-      ChatContext context,
-      @UseConverter(_replyMechanismsConverter)
-      @Description("How should the bot show colours?")
-      ReplyMechanisms mechanism,
-    ) async {
-      //if it's a DM with the bot, guild will be null, so we take the channel ID instead
-      final Snowflake guildId = context.guild?.id ?? context.channel.id;
+    id(
+      "reply-mechanism",
+      (
+        ChatContext context,
+        @UseConverter(_replyMechanismsConverter)
+        @Description("How should the bot show colours?")
+        ReplyMechanisms mechanism,
+      ) async {
+        //if it's a DM with the bot, guild will be null, so we take the channel ID instead
+        final Snowflake guildId = context.guild?.id ?? context.channel.id;
 
-      _placeReplyMechanismPreference[guildId] = mechanism;
+        _placeReplyMechanismPreference[guildId] = mechanism;
 
-      //it's fine to just re-save the whole thing every time it's changed.
-      //also helps prevent data loss if the bot gets forcefully shut down
-      _serialize();
+        //it's fine to just re-save the whole thing every time it's changed.
+        //also helps prevent data loss if the bot gets forcefully shut down
+        _serialize();
 
-      await context.respond(MessageBuilder(content: "Set to `${mechanism.name}`"));
-    },
+        await context.respond(MessageBuilder(content: "Set to `${mechanism.name}`"));
+      },
+    ),
     //only allow admins to run the command
     //server admins can assign specific roles to the command
     checks: <AbstractCheck>[PermissionsCheck.nobody()],

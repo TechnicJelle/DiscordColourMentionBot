@@ -4,3 +4,4 @@
 *.exe
 DiscordColourMentionBot
 prefs/
+/*.g.dart

@@ -25,7 +25,9 @@ jobs:
         run: dart analyze --fatal-infos
 
       - name: Build
-        run: dart compile exe bin/discord_colour_mention_bot.dart --output DiscordColourMentionBot_${{ env.GITHUB_SHA_SHORT }} --define=version=$GITHUB_SHA_SHORT
+        run: |
+          dart run nyxx_commands:compile --no-compile --output nyxx_main.g.dart bin/discord_colour_mention_bot.dart
+          dart compile exe nyxx_main.g.dart --output DiscordColourMentionBot_${{ env.GITHUB_SHA_SHORT }} --define=version=$GITHUB_SHA_SHORT
 
       - name: Upload build
         uses: actions/upload-artifact@v6
