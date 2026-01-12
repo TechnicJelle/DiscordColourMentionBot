@@ -1,0 +1,54 @@
+name: Build for Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      TAG_NAME:
+        description: 'Version (Tag Name)'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y jq
+
+      - name: Install yq
+        run: pip install yq
+
+      - name: Check tag with project version
+        run: |
+          TAG_NAME=${{ github.event.inputs.TAG_NAME }}
+          PROJECT_VERSION=$(yq .version pubspec.yaml --raw-output)
+          # Remove 'v' prefix from tag name
+          TAG_VERSION=$(sed 's/^v//g' <<< "$TAG_NAME")
+          if [ "$PROJECT_VERSION" != "$TAG_VERSION" ]; then
+              echo "::error title=Mismatched Versions!::Project version ($PROJECT_VERSION) does not match tag ($TAG_VERSION)"
+              exit 1
+          fi
+
+      - name: Set GitHub Environment Variables
+        run: echo "GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze project source
+        run: dart analyze --fatal-infos
+
+      - name: Build
+        run: dart compile exe bin/discord_colour_mention_bot.dart --output DiscordColourMentionBot_${{ github.event.inputs.TAG_NAME }} --define=version=${{ github.event.inputs.TAG_NAME }} ($GITHUB_SHA_SHORT)
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: build
+          path: DiscordColourMentionBot_${{ github.event.inputs.TAG_NAME }}

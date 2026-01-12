@@ -7,6 +7,9 @@ import "package:nyxx_commands/nyxx_commands.dart";
 import "preferences.dart";
 import "reply_mechanisms.dart";
 
+const String versionDevelopment = "development";
+const String version = String.fromEnvironment("version", defaultValue: versionDevelopment);
+
 final RegExp hexColourRegex = RegExp("#[0-9a-fA-F]{6,8}");
 
 Future<void> main(List<String> arguments) async {
@@ -35,6 +38,19 @@ Future<void> main(List<String> arguments) async {
         ignoreExceptions,
         commands,
       ],
+    ),
+  );
+
+  await client.application.manager.updateCurrentApplication(
+    ApplicationUpdateBuilder(
+      description: """
+This bot displays colour codes in messages!
+Try typing #123456 or any other colour code (#RRGGBB or #RRGGBBAA)
+
+**Bot information:**
+https://github.com/TechnicJelle/DiscordColourMentionBot
+Version: `$version`
+""".trim(),
     ),
   );
 

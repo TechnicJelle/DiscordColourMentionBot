@@ -9,18 +9,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - name: Set GitHub Environment Variables
+        run: echo "GITHUB_SHA_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
       - uses: dart-lang/setup-dart@v1
+
       - name: Install dependencies
         run: dart pub get
+
       - name: Verify formatting
         run: dart format --output=none --set-exit-if-changed .
+
       - name: Analyze project source
         run: dart analyze --fatal-infos
+
       - name: Build
-        run: dart compile exe bin/discord_colour_mention_bot.dart --output DiscordColourMentionBot
-      - name: Upload a Build Artifact
+        run: dart compile exe bin/discord_colour_mention_bot.dart --output DiscordColourMentionBot_${{ env.GITHUB_SHA_SHORT }} --define=version=$GITHUB_SHA_SHORT
+
+      - name: Upload build
         uses: actions/upload-artifact@v6
         with:
           name: build
-          path: DiscordColourMentionBot
-          
+          path: DiscordColourMentionBot_${{ env.GITHUB_SHA_SHORT }}
