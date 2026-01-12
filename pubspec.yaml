@@ -1,6 +1,5 @@
 name: discord_colour_mention_bot
 description: A small Discord bot that displays the colour of messages that contain a colour code
-version: 1.0.0
 repository: https://github.com/TechnicJelle/DiscordColourMentionBot
 
 environment:
