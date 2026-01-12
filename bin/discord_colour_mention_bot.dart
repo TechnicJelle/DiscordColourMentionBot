@@ -43,14 +43,16 @@ Future<void> main(List<String> arguments) async {
 
   await client.application.manager.updateCurrentApplication(
     ApplicationUpdateBuilder(
-      description: """
+      description:
+          """
 This bot displays colour codes in messages!
 Try typing #123456 or any other colour code (#RRGGBB or #RRGGBBAA)
 
 **Bot information:**
 https://github.com/TechnicJelle/DiscordColourMentionBot
 Version: `$version`
-""".trim(),
+"""
+              .trim(),
     ),
   );
 
