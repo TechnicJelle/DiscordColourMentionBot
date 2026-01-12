@@ -30,7 +30,7 @@ jobs:
       - name: Build
         run: |
           dart run nyxx_commands:compile --no-compile --output nyxx_main.g.dart bin/discord_colour_mention_bot.dart
-          dart compile exe nyxx_main.g.dart --output DiscordColourMentionBot_${{ github.event.inputs.TAG_NAME }} --define=version=${{ github.event.inputs.TAG_NAME }} ($GITHUB_SHA_SHORT)
+          dart compile exe nyxx_main.g.dart --output DiscordColourMentionBot_${{ github.event.inputs.TAG_NAME }} --define=version="${{ github.event.inputs.TAG_NAME }} ($GITHUB_SHA_SHORT)"
 
       - name: Upload build
         uses: actions/upload-artifact@v6
