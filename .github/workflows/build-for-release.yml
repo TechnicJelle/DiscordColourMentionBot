@@ -47,8 +47,8 @@ jobs:
       - name: Build
         run: dart compile exe bin/discord_colour_mention_bot.dart --output DiscordColourMentionBot_${{ github.event.inputs.TAG_NAME }} --define=version=${{ github.event.inputs.TAG_NAME }} ($GITHUB_SHA_SHORT)
 
-      - name: Upload a Build Artifact
+      - name: Upload build
         uses: actions/upload-artifact@v6
         with:
-          name: build
+          name: DiscordColourMentionBot_${{ github.event.inputs.TAG_NAME }}.zip
           path: DiscordColourMentionBot_${{ github.event.inputs.TAG_NAME }}
